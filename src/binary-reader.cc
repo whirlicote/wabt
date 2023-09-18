@@ -1161,6 +1161,30 @@ Result BinaryReader::ReadInstructions(Offset end_offset, const char* context) {
       case Opcode::F64X2RelaxedMax:
       case Opcode::I16X8RelaxedQ15mulrS:
       case Opcode::I16X8DotI8X16I7X16S:
+      case Opcode::F32AddCeil:
+      case Opcode::F32AddFloor:
+      case Opcode::F32AddTrunc:
+      case Opcode::F32SubCeil:
+      case Opcode::F32SubFloor:
+      case Opcode::F32SubTrunc:
+      case Opcode::F32MulCeil:
+      case Opcode::F32MulFloor:
+      case Opcode::F32MulTrunc:
+      case Opcode::F32DivCeil:
+      case Opcode::F32DivFloor:
+      case Opcode::F32DivTrunc:
+      case Opcode::F64AddCeil:
+      case Opcode::F64AddFloor:
+      case Opcode::F64AddTrunc:
+      case Opcode::F64SubCeil:
+      case Opcode::F64SubFloor:
+      case Opcode::F64SubTrunc:
+      case Opcode::F64MulCeil:
+      case Opcode::F64MulFloor:
+      case Opcode::F64MulTrunc:
+      case Opcode::F64DivCeil:
+      case Opcode::F64DivFloor:
+      case Opcode::F64DivTrunc:
         CALLBACK(OnBinaryExpr, opcode);
         CALLBACK0(OnOpcodeBare);
         break;
@@ -1328,6 +1352,12 @@ Result BinaryReader::ReadInstructions(Offset end_offset, const char* context) {
       case Opcode::I32X4RelaxedTruncF32X4U:
       case Opcode::I32X4RelaxedTruncF64X2SZero:
       case Opcode::I32X4RelaxedTruncF64X2UZero:
+      case Opcode::F32SqrtCeil:
+      case Opcode::F32SqrtFloor:
+      case Opcode::F32SqrtTrunc:
+      case Opcode::F64SqrtCeil:
+      case Opcode::F64SqrtFloor:
+      case Opcode::F64SqrtTrunc:
         CALLBACK(OnUnaryExpr, opcode);
         CALLBACK0(OnOpcodeBare);
         break;
@@ -1472,6 +1502,40 @@ Result BinaryReader::ReadInstructions(Offset end_offset, const char* context) {
       case Opcode::I32X4TruncSatF64X2UZero:
       case Opcode::F64X2ConvertLowI32X4S:
       case Opcode::F64X2ConvertLowI32X4U:
+      case Opcode::F32ConvertI32SCeil:
+      case Opcode::F32ConvertI32SFloor:
+      case Opcode::F32ConvertI32STrunc:
+      case Opcode::F32ConvertI32UCeil:
+      case Opcode::F32ConvertI32UFloor:
+      case Opcode::F32ConvertI32UTrunc:
+      case Opcode::F64ConvertI64SCeil:
+      case Opcode::F64ConvertI64SFloor:
+      case Opcode::F64ConvertI64STrunc:
+      case Opcode::F64ConvertI64UCeil:
+      case Opcode::F64ConvertI64UFloor:
+      case Opcode::F64ConvertI64UTrunc:
+      case Opcode::F32DemoteF64Ceil:
+      case Opcode::F32DemoteF64Floor:
+      case Opcode::F32DemoteF64Trunc:
+      case Opcode::F64ConvertI32SCeil:
+      case Opcode::F64ConvertI32SFloor:
+      case Opcode::F64ConvertI32STrunc:
+      case Opcode::F64ConvertI32UCeil:
+      case Opcode::F64ConvertI32UFloor:
+      case Opcode::F64ConvertI32UTrunc:
+      case Opcode::F32ConvertI64SCeil:
+      case Opcode::F32ConvertI64SFloor:
+      case Opcode::F32ConvertI64STrunc:
+      case Opcode::F32ConvertI64UCeil:
+      case Opcode::F32ConvertI64UFloor:
+      case Opcode::F32ConvertI64UTrunc:
+      case Opcode::F64PromoteF32Ceil:
+      case Opcode::F64PromoteF32Floor:
+      case Opcode::F64PromoteF32Trunc:
+      case Opcode::SignBitF32:
+      case Opcode::SignBitF64:
+      case Opcode::ArithmeticSignumF32:
+      case Opcode::ArithmeticSignumF64:
         CALLBACK(OnConvertExpr, opcode);
         CALLBACK0(OnOpcodeBare);
         break;
@@ -1844,7 +1908,15 @@ Result BinaryReader::ReadInstructions(Offset end_offset, const char* context) {
         CALLBACK(OnOpcodeBare);
         break;
 
-      default:
+      case Opcode::InterpAlloca:
+      case Opcode::InterpBrUnless:
+      case Opcode::InterpCallImport:
+      case Opcode::InterpData:
+      case Opcode::InterpDropKeep:
+      case Opcode::InterpCatchDrop:
+      case Opcode::InterpAdjustFrameForReturnCall:
+      case Opcode::Invalid:
+      //default:
         return ReportUnexpectedOpcode(opcode);
     }
   }

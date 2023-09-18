@@ -17,6 +17,17 @@
 #ifndef WABT_INTERP_MATH_H_
 #define WABT_INTERP_MATH_H_
 
+#ifdef __GNUC__
+  #define WABT_INTERP_MATH_PREVENT_FENV_ACCESS
+#endif
+#ifndef WABT_INTERP_MATH_PREVENT_FENV_ACCESS
+  // the c++ standard requires this pragma for accessing the floating point
+  // environment but most compilers have their own way of doing
+  // floating point environment
+  #pragma STDC FENV_ACCESS ON
+#endif
+#include <fenv.h>
+
 #include <cmath>
 #include <limits>
 #include <string>
@@ -32,6 +43,16 @@
 
 namespace wabt {
 namespace interp {
+
+#ifndef FE_DOWNWARD
+  #error "FE_DOWNWARD not supported"
+#endif
+#ifndef FE_TOWARDZERO
+  #error "FE_TOWARDZERO not supported"
+#endif
+#ifndef FE_UPWARD
+  #error "FE_UPWARD not supported"
+#endif
 
 template <
     typename T,
@@ -91,6 +112,27 @@ template <typename T> T WABT_VECTORCALL IntAndNot(T lhs, T rhs) { return lhs & ~
 template <typename T> T WABT_VECTORCALL IntAvgr(T lhs, T rhs) { return (lhs + rhs + 1) / 2; }
 template <typename T> T WABT_VECTORCALL Xchg(T lhs, T rhs) { return rhs; }
 
+template <int desiredRoundingMode, typename T>
+T WABT_VECTORCALL FloatAddRounded(T lhs, T rhs) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for addition*/ }
+  const T result = lhs + rhs;
+  fesetround( originalRoundingMode );
+  return CanonNaN(result);
+}
+
+template <int desiredRoundingMode, typename T>
+T WABT_VECTORCALL FloatSubRounded(T lhs, T rhs) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for subtraction*/ }
+  const T result = lhs - rhs;
+  fesetround( originalRoundingMode );
+  return CanonNaN(result);
+}
+
+
 // This is a wrapping absolute value function, so a negative number that is not
 // representable as a positive number will be unchanged (e.g. abs(-128) = 128).
 //
@@ -122,6 +164,16 @@ template <typename T>
 T WABT_VECTORCALL Mul(T lhs, T rhs) {
   using U = typename PromoteMul<T>::type;
   return CanonNaN(U(lhs) * U(rhs));
+}
+
+template <int desiredRoundingMode, typename T>
+T WABT_VECTORCALL FloatMulRounded(T lhs, T rhs) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for multiplication*/ }
+  const T result = lhs * rhs;
+  fesetround( originalRoundingMode );
+  return CanonNaN(result);
 }
 
 template <typename T> struct Mask { using Type = T; };
@@ -249,6 +301,15 @@ template <typename T> T WABT_VECTORCALL FloatTrunc(T val) { return CanonNaN(std:
 template <typename T> T WABT_VECTORCALL FloatNearest(T val) { return CanonNaN(std::nearbyint(val)); }
 template <typename T> T WABT_VECTORCALL FloatSqrt(T val) { return CanonNaN(std::sqrt(val)); }
 
+template <int desiredRoundingMode, typename T> T WABT_VECTORCALL FloatSqrtRounded(T val) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for std::sqrt*/ }
+  const T result = std::sqrt(val);
+  fesetround( originalRoundingMode );
+  return CanonNaN(result);
+}
+
 template <typename T>
 T WABT_VECTORCALL FloatDiv(T lhs, T rhs) {
   // IEE754 specifies what should happen when dividing a float by zero, but
@@ -261,6 +322,17 @@ T WABT_VECTORCALL FloatDiv(T lhs, T rhs) {
                       : std::numeric_limits<T>::infinity());
   }
   return CanonNaN(lhs / rhs);
+}
+
+
+template <int desiredRoundingMode, typename T>
+T WABT_VECTORCALL FloatDivRounded(T lhs, T rhs) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for divide*/ }
+  const T result = FloatDiv<T>(lhs, rhs);
+  fesetround( originalRoundingMode );
+  return result;
 }
 
 template <typename T>
@@ -352,6 +424,16 @@ inline f64 WABT_VECTORCALL Convert(s64 val) {
   return wabt_convert_int64_to_double(val);
 }
 
+template <int desiredRoundingMode, typename R, typename T>
+R WABT_VECTORCALL FloatConvertRounded(T val) {
+  const int originalRoundingMode = fegetround();
+  const int didItWork = fesetround( desiredRoundingMode );
+  if (0 != didItWork) { std::exit(207); /*floating point environment could not set rounding mode for converting*/ }
+  const R result = static_cast<R>(val);
+  fesetround( originalRoundingMode );
+  return CanonNaN(result); // canonicalization of NaN is needed in case T is a floating point type
+}
+
 template <typename T, int N>
 T WABT_VECTORCALL IntExtend(T val) {
   // Hacker's delight 2.6 - sign extension
@@ -405,6 +487,10 @@ T WABT_VECTORCALL SaturatingRoundingQMul(T lhs, T rhs) {
   product >>= (size_in_bits - 1);
   return Saturate<T, int64_t>(product);
 }
+
+
+template <typename T> T WABT_VECTORCALL SignBit(T val) { return std::signbit(CanonNaN(val)); }
+template <typename T> T WABT_VECTORCALL ArithmeticSignum(T val) { return (T(0) < val) - (val < T(0)); }
 
 }  // namespace interp
 }  // namespace wabt

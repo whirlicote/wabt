@@ -39,3 +39,4 @@ uint32_t WabtOpcodeCodeTable[WABT_OPCODE_CODE_TABLE_SIZE] = {
 #include "wabt/opcode.def"
 #undef WABT_OPCODE
 };
+

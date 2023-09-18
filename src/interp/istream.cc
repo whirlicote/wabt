@@ -132,15 +132,33 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::F32Abs:
     case Opcode::F32Ceil:
     case Opcode::F32ConvertI32S:
+    case Opcode::F32ConvertI32SCeil:
+    case Opcode::F32ConvertI32SFloor:
+    case Opcode::F32ConvertI32STrunc:
     case Opcode::F32ConvertI32U:
+    case Opcode::F32ConvertI32UCeil:
+    case Opcode::F32ConvertI32UFloor:
+    case Opcode::F32ConvertI32UTrunc:
     case Opcode::F32ConvertI64S:
+    case Opcode::F32ConvertI64SCeil:
+    case Opcode::F32ConvertI64SFloor:
+    case Opcode::F32ConvertI64STrunc:
     case Opcode::F32ConvertI64U:
+    case Opcode::F32ConvertI64UCeil:
+    case Opcode::F32ConvertI64UFloor:
+    case Opcode::F32ConvertI64UTrunc:
     case Opcode::F32DemoteF64:
+    case Opcode::F32DemoteF64Ceil:
+    case Opcode::F32DemoteF64Floor:
+    case Opcode::F32DemoteF64Trunc:
     case Opcode::F32Floor:
     case Opcode::F32Nearest:
     case Opcode::F32Neg:
     case Opcode::F32ReinterpretI32:
     case Opcode::F32Sqrt:
+    case Opcode::F32SqrtCeil:
+    case Opcode::F32SqrtFloor:
+    case Opcode::F32SqrtTrunc:
     case Opcode::F32Trunc:
     case Opcode::F32X4Abs:
     case Opcode::F32X4Ceil:
@@ -155,15 +173,33 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::F64Abs:
     case Opcode::F64Ceil:
     case Opcode::F64ConvertI32S:
+    case Opcode::F64ConvertI32SCeil:
+    case Opcode::F64ConvertI32SFloor:
+    case Opcode::F64ConvertI32STrunc:
     case Opcode::F64ConvertI32U:
+    case Opcode::F64ConvertI32UCeil:
+    case Opcode::F64ConvertI32UFloor:
+    case Opcode::F64ConvertI32UTrunc:
     case Opcode::F64ConvertI64S:
+    case Opcode::F64ConvertI64SCeil:
+    case Opcode::F64ConvertI64SFloor:
+    case Opcode::F64ConvertI64STrunc:
     case Opcode::F64ConvertI64U:
+    case Opcode::F64ConvertI64UCeil:
+    case Opcode::F64ConvertI64UFloor:
+    case Opcode::F64ConvertI64UTrunc:
     case Opcode::F64Floor:
     case Opcode::F64Nearest:
     case Opcode::F64Neg:
     case Opcode::F64PromoteF32:
+    case Opcode::F64PromoteF32Ceil:
+    case Opcode::F64PromoteF32Floor:
+    case Opcode::F64PromoteF32Trunc:
     case Opcode::F64ReinterpretI64:
     case Opcode::F64Sqrt:
+    case Opcode::F64SqrtCeil:
+    case Opcode::F64SqrtFloor:
+    case Opcode::F64SqrtTrunc:
     case Opcode::F64Trunc:
     case Opcode::F64X2Abs:
     case Opcode::F64X2Ceil:
@@ -259,13 +295,23 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::I32X4RelaxedTruncF32X4U:
     case Opcode::I32X4RelaxedTruncF64X2SZero:
     case Opcode::I32X4RelaxedTruncF64X2UZero:
+    case Opcode::SignBitF32:
+    case Opcode::SignBitF64:
+    case Opcode::ArithmeticSignumF32:
+    case Opcode::ArithmeticSignumF64:
       // 0 immediates, 1 operand.
       instr.kind = InstrKind::Imm_0_Op_1;
       break;
 
     case Opcode::F32Add:
+    case Opcode::F32AddCeil:
+    case Opcode::F32AddFloor:
+    case Opcode::F32AddTrunc:
     case Opcode::F32Copysign:
     case Opcode::F32Div:
+    case Opcode::F32DivCeil:
+    case Opcode::F32DivFloor:
+    case Opcode::F32DivTrunc:
     case Opcode::F32Eq:
     case Opcode::F32Ge:
     case Opcode::F32Gt:
@@ -274,8 +320,14 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::F32Max:
     case Opcode::F32Min:
     case Opcode::F32Mul:
+    case Opcode::F32MulCeil:
+    case Opcode::F32MulFloor:
+    case Opcode::F32MulTrunc:
     case Opcode::F32Ne:
     case Opcode::F32Sub:
+    case Opcode::F32SubCeil:
+    case Opcode::F32SubFloor:
+    case Opcode::F32SubTrunc:
     case Opcode::F32X4Add:
     case Opcode::F32X4Div:
     case Opcode::F32X4Eq:
@@ -291,8 +343,14 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::F32X4PMin:
     case Opcode::F32X4Sub:
     case Opcode::F64Add:
+    case Opcode::F64AddCeil:
+    case Opcode::F64AddFloor:
+    case Opcode::F64AddTrunc:
     case Opcode::F64Copysign:
     case Opcode::F64Div:
+    case Opcode::F64DivCeil:
+    case Opcode::F64DivFloor:
+    case Opcode::F64DivTrunc:
     case Opcode::F64Eq:
     case Opcode::F64Ge:
     case Opcode::F64Gt:
@@ -301,8 +359,14 @@ Instr Istream::Read(Offset* offset) const {
     case Opcode::F64Max:
     case Opcode::F64Min:
     case Opcode::F64Mul:
+    case Opcode::F64MulCeil:
+    case Opcode::F64MulFloor:
+    case Opcode::F64MulTrunc:
     case Opcode::F64Ne:
     case Opcode::F64Sub:
+    case Opcode::F64SubCeil:
+    case Opcode::F64SubFloor:
+    case Opcode::F64SubTrunc:
     case Opcode::F64X2Add:
     case Opcode::F64X2Div:
     case Opcode::F64X2Eq:

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 #include "wabt/interp/interp.h"
 
 #include <algorithm>
@@ -24,6 +25,7 @@
 
 namespace wabt {
 namespace interp {
+
 
 const char* GetName(Mutability mut) {
   static const char* kNames[] = {"immutable", "mutable"};
@@ -1396,6 +1398,22 @@ RunResult Thread::StepInternal(Trap::Ptr* out_trap) {
     case O::F32Max:      return DoBinop(FloatMax<f32>);
     case O::F32Copysign: return DoBinop(FloatCopysign<f32>);
 
+    case O::F32SqrtCeil:       return DoUnop(FloatSqrtRounded<FE_UPWARD    , f32>);
+    case O::F32SqrtFloor:      return DoUnop(FloatSqrtRounded<FE_DOWNWARD  , f32>);
+    case O::F32SqrtTrunc:      return DoUnop(FloatSqrtRounded<FE_TOWARDZERO, f32>);
+    case O::F32AddCeil:        return DoBinop(FloatAddRounded<FE_UPWARD    , f32>);
+    case O::F32AddFloor:       return DoBinop(FloatAddRounded<FE_DOWNWARD  , f32>);
+    case O::F32AddTrunc:       return DoBinop(FloatAddRounded<FE_TOWARDZERO, f32>);
+    case O::F32SubCeil:        return DoBinop(FloatSubRounded<FE_UPWARD    , f32>);
+    case O::F32SubFloor:       return DoBinop(FloatSubRounded<FE_DOWNWARD  , f32>);
+    case O::F32SubTrunc:       return DoBinop(FloatSubRounded<FE_TOWARDZERO, f32>);
+    case O::F32MulCeil:        return DoBinop(FloatMulRounded<FE_UPWARD    , f32>);
+    case O::F32MulFloor:       return DoBinop(FloatMulRounded<FE_DOWNWARD  , f32>);
+    case O::F32MulTrunc:       return DoBinop(FloatMulRounded<FE_TOWARDZERO, f32>);
+    case O::F32DivCeil:        return DoBinop(FloatDivRounded<FE_UPWARD    , f32>);
+    case O::F32DivFloor:       return DoBinop(FloatDivRounded<FE_DOWNWARD  , f32>);
+    case O::F32DivTrunc:       return DoBinop(FloatDivRounded<FE_TOWARDZERO, f32>);
+
     case O::F64Abs:     return DoUnop(FloatAbs<f64>);
     case O::F64Neg:     return DoUnop(FloatNeg<f64>);
     case O::F64Ceil:    return DoUnop(FloatCeil<f64>);
@@ -1410,6 +1428,22 @@ RunResult Thread::StepInternal(Trap::Ptr* out_trap) {
     case O::F64Min:      return DoBinop(FloatMin<f64>);
     case O::F64Max:      return DoBinop(FloatMax<f64>);
     case O::F64Copysign: return DoBinop(FloatCopysign<f64>);
+
+    case O::F64SqrtCeil:       return DoUnop(FloatSqrtRounded<FE_UPWARD    , f64>);
+    case O::F64SqrtFloor:      return DoUnop(FloatSqrtRounded<FE_DOWNWARD  , f64>);
+    case O::F64SqrtTrunc:      return DoUnop(FloatSqrtRounded<FE_TOWARDZERO, f64>);
+    case O::F64AddCeil:        return DoBinop(FloatAddRounded<FE_UPWARD    , f64>);
+    case O::F64AddFloor:       return DoBinop(FloatAddRounded<FE_DOWNWARD  , f64>);
+    case O::F64AddTrunc:       return DoBinop(FloatAddRounded<FE_TOWARDZERO, f64>);
+    case O::F64SubCeil:        return DoBinop(FloatSubRounded<FE_UPWARD    , f64>);
+    case O::F64SubFloor:       return DoBinop(FloatSubRounded<FE_DOWNWARD  , f64>);
+    case O::F64SubTrunc:       return DoBinop(FloatSubRounded<FE_TOWARDZERO, f64>);
+    case O::F64MulCeil:        return DoBinop(FloatMulRounded<FE_UPWARD    , f64>);
+    case O::F64MulFloor:       return DoBinop(FloatMulRounded<FE_DOWNWARD  , f64>);
+    case O::F64MulTrunc:       return DoBinop(FloatMulRounded<FE_TOWARDZERO, f64>);
+    case O::F64DivCeil:        return DoBinop(FloatDivRounded<FE_UPWARD    , f64>);
+    case O::F64DivFloor:       return DoBinop(FloatDivRounded<FE_DOWNWARD  , f64>);
+    case O::F64DivTrunc:       return DoBinop(FloatDivRounded<FE_TOWARDZERO, f64>);
 
     case O::I32WrapI64:      return DoConvert<u32, u64>(out_trap);
     case O::I32TruncF32S:    return DoConvert<s32, f32>(out_trap);
@@ -1433,6 +1467,37 @@ RunResult Thread::StepInternal(Trap::Ptr* out_trap) {
     case O::F64ConvertI64U:  return DoConvert<f64, u64>(out_trap);
     case O::F64PromoteF32:   return DoConvert<f64, f32>(out_trap);
 
+    case O::F32ConvertI32SCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f32,s32>);
+    case O::F32ConvertI32SFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f32,s32>);
+    case O::F32ConvertI32STrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f32,s32>);
+    case O::F32ConvertI32UCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f32,u32>);
+    case O::F32ConvertI32UFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f32,u32>);
+    case O::F32ConvertI32UTrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f32,u32>);
+    case O::F32ConvertI64SCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f32,s64>);
+    case O::F32ConvertI64SFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f32,s64>);
+    case O::F32ConvertI64STrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f32,s64>);
+    case O::F32ConvertI64UCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f32,u64>);
+    case O::F32ConvertI64UFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f32,u64>);
+    case O::F32ConvertI64UTrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f32,u64>);
+    case O::F32DemoteF64Ceil:      return DoUnop(FloatConvertRounded<FE_UPWARD    ,f32,f64>);
+    case O::F32DemoteF64Floor:     return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f32,f64>);
+    case O::F32DemoteF64Trunc:     return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f32,f64>);
+    case O::F64ConvertI32SCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f64,s32>);
+    case O::F64ConvertI32SFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f64,s32>);
+    case O::F64ConvertI32STrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f64,s32>);
+    case O::F64ConvertI32UCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f64,u32>);
+    case O::F64ConvertI32UFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f64,u32>);
+    case O::F64ConvertI32UTrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f64,u32>);
+    case O::F64ConvertI64SCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f64,s64>);
+    case O::F64ConvertI64SFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f64,s64>);
+    case O::F64ConvertI64STrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f64,s64>);
+    case O::F64ConvertI64UCeil:    return DoUnop(FloatConvertRounded<FE_UPWARD    ,f64,u64>);
+    case O::F64ConvertI64UFloor:   return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f64,u64>);
+    case O::F64ConvertI64UTrunc:   return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f64,u64>);
+    case O::F64PromoteF32Ceil:     return DoUnop(FloatConvertRounded<FE_UPWARD    ,f64,f32>);
+    case O::F64PromoteF32Floor:    return DoUnop(FloatConvertRounded<FE_DOWNWARD  ,f64,f32>);
+    case O::F64PromoteF32Trunc:    return DoUnop(FloatConvertRounded<FE_TOWARDZERO,f64,f32>);
+
     case O::I32ReinterpretF32: return DoReinterpret<u32, f32>();
     case O::F32ReinterpretI32: return DoReinterpret<f32, u32>();
     case O::I64ReinterpretF64: return DoReinterpret<u64, f64>();
@@ -1443,6 +1508,11 @@ RunResult Thread::StepInternal(Trap::Ptr* out_trap) {
     case O::I64Extend8S:   return DoUnop(IntExtend<u64, 7>);
     case O::I64Extend16S:  return DoUnop(IntExtend<u64, 15>);
     case O::I64Extend32S:  return DoUnop(IntExtend<u64, 31>);
+
+    case O::SignBitF32:             return DoUnop(SignBit<f32>);
+    case O::SignBitF64:             return DoUnop(SignBit<f32>);
+    case O::ArithmeticSignumF32:    return DoUnop(ArithmeticSignum<f32>);
+    case O::ArithmeticSignumF64:    return DoUnop(ArithmeticSignum<f64>);
 
     case O::InterpAlloca:
       values_.resize(values_.size() + instr.imm_u32);
